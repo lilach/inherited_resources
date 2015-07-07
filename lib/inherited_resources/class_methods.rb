@@ -314,7 +314,8 @@ module InheritedResources
         # First priority is the namespaced model, e.g. User::Group
         self.resource_class ||= begin
           namespaced_class = self.name.sub(/Controller$/, '').singularize
-          namespaced_class.constantize
+          # dont try to find Base as it causes issues
+          namespaced_class =~ /::Base$/ ? nil : namespaced_class.constantize
         rescue NameError
           nil
         end
@@ -323,7 +324,8 @@ module InheritedResources
         self.resource_class ||= begin
           namespaced_classes = self.name.sub(/Controller$/, '').split('::')
           namespaced_class = [namespaced_classes.first, namespaced_classes.last].join('::').singularize
-          namespaced_class.constantize
+          # dont try to find Base as it causes issues
+          namespaced_class =~ /::Base$/ ? nil : namespaced_class.constantize
         rescue NameError
           nil
         end
@@ -339,7 +341,8 @@ module InheritedResources
         # Otherwise use the Group class, or fail
         self.resource_class ||= begin
           class_name = self.controller_name.classify
-          class_name.constantize
+          # dont try to find Base as it causes issues
+          class_name =~ /Base$/ ? nil : class_name.constantize
         rescue NameError => e
           raise unless e.message.include?(class_name)
           nil
